@@ -1,5 +1,7 @@
 список всех команд, запускаемых в Django shell
 
+from news.models import *
+
 1. User.objects.create_user('Vlad')
 2. u1 = User.objects.create_user('Sergey')
 3. Author.objects.create(authorUser=u1)
