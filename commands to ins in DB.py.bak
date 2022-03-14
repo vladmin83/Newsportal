@@ -76,9 +76,6 @@ from news.models import *
         i.commentUser
         i.rating
         i.text
-66. bestPost = Post.objects.all().order_by('-rating')[0]
-67. bestPost
-68. Comment.objects.get(id=4).text
 
 
 
