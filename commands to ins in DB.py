@@ -70,16 +70,14 @@ from news.models import *
         i.rating
         i.title
         i.preview()
-64. c = Comment.objects.all()
-65. for i in c:
-        i.dateCreation
-        i.commentUser
-        i.rating
-        i.text
-66. bestPost = Post.objects.all().order_by('-rating')[0]
-67. bestPost
-68. Comment.objects.get(id=4).text
 
+64. bestPost = Post.objects.all().order_by('-rating')[0]
+65. comments = bestPost.comment_set.all()
+66. for c in comments:
+         c.dateCreation
+         c.text
+         c.rating
+         c.commentUser
 
 
 
