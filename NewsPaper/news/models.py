@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from django.shortcuts import reverse
+
 
 
 class Author(models.Model):
@@ -19,13 +21,20 @@ class Author(models.Model):
         self.ratingAuthor = pRat * 3 + cRat
         self.save()
 
+    def __str__(self):
+        return f'{self.authorUser.username}'
+
+    class Meta:
+        verbose_name = 'Автор'
+        verbose_name_plural = 'Авторы'
+        ordering = ['-ratingAuthor']
 
 class Category(models.Model):
     name = models.CharField(max_length=64, unique=True, verbose_name='категория')
     discription = models.TextField(null=True, blank=True, verbose_name='описание')
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
     class Meta:
         verbose_name = 'Категория'
@@ -41,12 +50,15 @@ class Post(models.Model):
         (NEWS, "Новость"),
         (ARTICLE, "Статья")
     )
+    postCategory = models.ForeignKey(Category, on_delete=models.CASCADE)
     categoryType = models.CharField(max_length=2, choices=CATEGORY_CHOICES, default=ARTICLE)
     dateCreation = models.DateTimeField(auto_now_add=True, verbose_name='дата публикации')
-    postCategory = models.ManyToManyField(Category, through="PostCategory")
     title = models.CharField(max_length=128, verbose_name='заголовок')
     text = models.TextField(null=True, blank=True, verbose_name='текст публикации')
     rating = models.SmallIntegerField(default=0)
+
+    def get_absolut_url(self):
+        return reverse('detail', kwargs={'pk': self.pk})
 
     def like(self):
         self.rating += 1
@@ -56,20 +68,16 @@ class Post(models.Model):
         self.rating -= 1
         self.save()
 
-    def preview(self):
-        return self.text[0:123] + '...'
+    def date(self):
+        return f'{self.dateCreation.strftime("%d.%m.%Y")}'
 
     def __str__(self):
-        return self.title
+        return f'{self.text[:20]}'
 
     class Meta:
         verbose_name = 'Публикация'
         verbose_name_plural = 'Публикации'
-
-class PostCategory(models.Model):
-    postThrough = models.ForeignKey(Post, on_delete=models.CASCADE)
-    categoryThrough = models.ForeignKey(Category, on_delete=models.CASCADE)
-
+        ordering = ['-dateCreation']
 
 class Comment(models.Model):
     commentPost = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -85,3 +93,12 @@ class Comment(models.Model):
     def dislike(self):
         self.rating -= 1
         self.save()
+
+    def __str__(self):
+        return f'{self.commentPost.title}'
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ['-dateCreation']
+
