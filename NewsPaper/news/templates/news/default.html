@@ -1,18 +1,11 @@
+{% extends 'base.html' %}
+
 {% load custom_filters %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% block title %}
 <p>{% for post in object_list %}</p>
 {{ post.title | censor }} /{{ post.date }}/
 {{ post }}
 <a href="{{post.get_absolut_url}}">Читать далее</a>
 {% endfor %}
-{% block title %}
 {% endblock %}
-</body>
-</html>
