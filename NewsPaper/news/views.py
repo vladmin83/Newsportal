@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from news.models import Post
+from .models import Post
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView
 from django.http import HttpResponse
@@ -7,7 +7,7 @@ from django.http import HttpResponse
 class PostList(ListView):
     model = Post
     context_object_name = 'Posts'
-    template_name = 'news/default.html'
+    template_name = 'news/posts.html'
     #queryset = Post.objects.all()
 
 

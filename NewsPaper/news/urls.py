@@ -3,7 +3,7 @@ from news.views import *
 
 
 urlpatterns = [
-    path('', PostList.as_view(template_name='default.html')),
+    path('', PostList.as_view(template_name='posts.html')),
     path('<int:pk>', detail, name='detail'),
 ]
 
