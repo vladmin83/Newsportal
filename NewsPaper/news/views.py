@@ -1,36 +1,70 @@
 from django.shortcuts import render
-from .models import Post
-from django.views.generic import ListView, DetailView
-from django.views.generic.edit import CreateView
+from .models import New, Category
+from django.views.generic import ListView, DetailView, View
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.http import HttpResponse
-
-class PostList(ListView):
-    model = Post
-    context_object_name = 'Posts'
-    template_name = 'news/posts.html'
-    #queryset = Post.objects.all()
+from django.core.paginator import Paginator
+from .filters import NewFilter
+from .forms import NewForm
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 
-def detail(request, pk):
-    post = Post.objects.get(pk__iexact=pk)
-    return render(request, 'detail.html', context={'post': post})
+class News(ListView):
+    model = New
+    context_object_name = 'news'
+    template_name = 'posts.html'
+    ordering = ['-dateCreation']
+    author = 'authors'
+    paginate_by = 5
 
-# class Post(DetailView):
-#     model = Post
-#     context_object_name = 'Post'
-#     template_name = 'news/detail.html'
+    def get_filter(self):
+        return NewFilter(self.request.GET, queryset=super().get_queryset())
+
+    def get_queryset(self):
+        return self.get_filter().qs
+
+    def get_context_data(self, *args, **kwargs):
+        return {
+            **super().get_context_data(*args, **kwargs),
+            'filter': self.get_filter(),
+        }
 
 
-# def default(request):
-#      posts = Post.objects.all()
-#      return render(request, 'default.html', context={'posts': posts})
-#
+class NewDetailView(DetailView):
+    template_name = 'news/detail.html'
+    queryset = New.objects.all()
+
+
+class NewCreateView(CreateView):
+    template_name = 'news/create.html'
+    form_class = NewForm
+
+
+class NewUpdateView(UpdateView):
+    template_name = 'news/create.html'
+    form_class = NewForm
+
+    def get_object(self, **kwargs):
+        id = self.kwargs.get('pk')
+        return New.objects.get(pk=id)
+
+
+class NewDeleteView(DeleteView):
+    template_name = 'news/delete.html'
+    queryset = New.objects.all()
+    success_url = '/news/'
 
 
 
+class MyView(PermissionRequiredMixin, View):
+    permission_required = ('news.view_New')
 
 
+class AddNew(PermissionRequiredMixin, CreateView):
+    permission_required = ('news.view_New', 'news.add_New', 'news.change_New', 'news.delete_New')
 
-# class PostCreate(CreateView):
-#     model = Post
-#     field = '__all__'
+# def news_list(request):
+#     x = X(request.GET, queryset=New.objects.all())
+#     return render(request, 'news_d.html', {'filter': x})
+
+
